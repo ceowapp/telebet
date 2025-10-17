@@ -1,4 +1,3 @@
-// components/dashboard/Dashboard.tsx
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -8,35 +7,57 @@ import SurebetCard from '@/components/SurebetCard';
 import { Button } from '@/components/ui/button';
 import { Filter, Pause, RefreshCw } from 'lucide-react';
 
+interface Bet {
+  bookmaker: string;
+  odds: number;
+  market: string;
+  stake: number;
+}
+
+interface Surebet {
+  id: number;
+  roi: number;
+  sport: string;
+  updatedAt: string;
+  profit: number;
+  match: string;
+  league: string;
+  date: string;
+  bets: Bet[];
+}
+
 export default function Dashboard() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'live' | 'pre-match'>('live');
   const [isPaused, setIsPaused] = useState(false);
-
-  const [surebets, setSurebets] = useState<any[]>([]);
+  const [surebets, setSurebets] = useState<Surebet[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let timer: any;
+    let timer: NodeJS.Timeout | null = null;
+
     const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
         const res = await fetch('/api/surebets', { next: { revalidate: 5 } });
-        const data = await res.json();
+        const data: { surebets: Surebet[] } = await res.json();
         setSurebets(Array.isArray(data?.surebets) ? data.surebets : []);
-      } catch (e) {
+      } catch {
         setError('Failed to load surebets');
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
     if (!isPaused) {
       timer = setInterval(fetchData, 15000);
     }
-    return () => timer && clearInterval(timer);
+    return () => {
+      if (timer) clearInterval(timer);
+    };
   }, [isPaused]);
 
   return (
@@ -91,7 +112,6 @@ export default function Dashboard() {
             <Button
               className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-black"
               onClick={() => {
-                // manual refresh
                 setIsPaused(true);
                 setTimeout(() => setIsPaused(false), 0);
               }}
@@ -101,6 +121,7 @@ export default function Dashboard() {
             </Button>
           </div>
         </div>
+
         {loading ? (
           <div className="text-center py-20 text-gray-600">Loading...</div>
         ) : error ? (
@@ -108,8 +129,18 @@ export default function Dashboard() {
         ) : surebets.length === 0 ? (
           <div className="text-center py-20">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-200 mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg
+                className="w-8 h-8 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-gray-700 mb-2">
@@ -128,10 +159,7 @@ export default function Dashboard() {
         )}
       </div>
 
-      <FilterModal 
-        isOpen={isFilterOpen} 
-        onClose={() => setIsFilterOpen(false)} 
-      />
+      <FilterModal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
     </div>
   );
 }
