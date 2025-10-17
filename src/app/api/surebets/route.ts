@@ -168,7 +168,6 @@ export async function GET(req: NextRequest) {
           ProgrammeIds: []
       }),
     }),
-
     fetchJson<StakeHighrollerResponse>('https://stake.com/_api/graphql', {
       method: 'POST',
       headers: {
