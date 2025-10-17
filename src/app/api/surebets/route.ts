@@ -1,143 +1,94 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findSurebets, type MarketOdds, buildOneXTwoMarket } from '@/lib/surebet';
 
-// ---------- Utility ----------
-async function fetchJson<T = unknown>(url: string, init?: RequestInit): Promise<T | null> {
+// --- Provider response types ---
+type StakeHighrollerOutcome = {
+  id?: string | number;
+  odds?: number;
+  fixtureName?: string;
+  fixtureAbreviation?: string;
+  fixture?: {
+    id?: string;
+    tournament?: {
+      id?: string;
+      category?: { id?: string; sport?: { id?: string; slug?: string } };
+    };
+  };
+};
+type StakeHighrollerBet = { outcomes?: StakeHighrollerOutcome[] };
+type StakeHighrollerItem = { bet?: StakeHighrollerBet };
+type StakeHighrollerResponse = { data?: { highrollerSportBets?: StakeHighrollerItem[] } } | null;
+
+type OneXBetOddsEvent = { T?: number; C?: number; D?: number; E?: number };
+type OneXBetEvent = { L?: string; O1?: string; O2?: string; E?: OneXBetOddsEvent[] };
+type OneXBetResponse = { Value?: OneXBetEvent[] } | null;
+
+type IMSOutcome = { type?: string; odds?: number };
+type IMSMarket = { type?: string; outcomes?: IMSOutcome[] };
+type IMSTeam = { name?: string };
+type IMSEvent = { homeTeam?: IMSTeam; awayTeam?: IMSTeam; markets?: IMSMarket[] };
+type IMSLeague = { name?: string; events?: IMSEvent[] };
+type IMSSport = { name?: string; leagues?: IMSLeague[] };
+type IMSResponse = { sports?: IMSSport[] } | null;
+
+async function fetchJson<T>(url: string, init?: RequestInit): Promise<T | null> {
   try {
     const res = await fetch(url, { ...init, cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return (await res.json()) as T;
-  } catch (err) {
-    console.error('fetchJson failed:', url, err);
+  } catch (e) {
+    console.error('fetchJson failed:', url, e);
     return null;
   }
 }
 
-// ---------- Type helpers ----------
-interface StakeOutcome {
-  id: string;
-  odds: number;
-  fixtureName?: string;
-  fixtureAbreviation?: string;
-  fixture?: {
-    id: string;
-    tournament?: {
-      id: string;
-      category?: {
-        id: string;
-        sport?: { id: string; slug?: string };
-      };
-    };
-  };
-}
+// --- Normalizers ---
 
-interface StakeBet {
-  id: string;
-  outcomes: StakeOutcome[];
-}
-
-interface StakeResponse {
-  data?: {
-    highrollerSportBets?: {
-      id: string;
-      iid: string;
-      bet?: StakeBet;
-    }[];
-  };
-}
-
-interface OneXBetEvent {
-  L?: string;
-  O1?: string;
-  O2?: string;
-  E?: Array<{ T: number; C: string; D: string; E: string }>;
-}
-
-interface OneXBetResponse {
-  Value?: OneXBetEvent[];
-}
-
-interface DavidOutcome {
-  type: '1' | 'X' | '2';
-  odds: number;
-}
-
-interface DavidMarket {
-  type: string;
-  outcomes: DavidOutcome[];
-}
-
-interface DavidEvent {
-  homeTeam?: { name?: string };
-  awayTeam?: { name?: string };
-  markets?: DavidMarket[];
-}
-
-interface DavidLeague {
-  name?: string;
-  events?: DavidEvent[];
-}
-
-interface DavidSport {
-  name?: string;
-  leagues?: DavidLeague[];
-}
-
-interface DavidResponse {
-  sports?: DavidSport[];
-}
-
-// ---------- Normalizers ----------
-function normalizeStakeHighrollers(json: StakeResponse | null): MarketOdds[] {
-  if (!json?.data?.highrollerSportBets) return [];
+function normalizeStakeHighrollers(json: StakeHighrollerResponse): MarketOdds[] {
+  if (!json || !json.data?.highrollerSportBets) return [];
   const markets: MarketOdds[] = [];
-
   for (const item of json.data.highrollerSportBets) {
-    const bet = item.bet;
+    const bet = item?.bet;
     if (!bet?.outcomes) continue;
-
-    const firstOutcome = bet.outcomes[0];
-    const matchName = firstOutcome?.fixtureName ?? 'Unknown Match';
-    const leagueName = firstOutcome?.fixture?.tournament?.category?.id ?? 'Unknown League';
-    const sportSlug = firstOutcome?.fixture?.tournament?.category?.sport?.slug ?? 'sport';
+    const matchName = bet.outcomes?.[0]?.fixtureName ?? 'Unknown Match';
+    const leagueName = bet.outcomes?.[0]?.fixture?.tournament?.category?.id ?? 'Unknown League';
+    const sportSlug = bet.outcomes?.[0]?.fixture?.tournament?.category?.sport?.slug ?? 'sport';
 
     const selections = bet.outcomes
-      .map((o) => ({
+      .map((o: StakeHighrollerOutcome) => ({
         bookmaker: 'Stake',
         market: 'Unspecified',
-        outcomeKey: String(o.id ?? Math.random()),
-        odds: Number(o.odds),
+        outcomeKey: String(o?.id ?? Math.random()),
+        odds: Number(o?.odds),
       }))
       .filter((s) => s.odds && isFinite(s.odds));
 
     if (selections.length >= 2) {
       markets.push({
         sport: sportSlug,
-        league: leagueName,
-        match: matchName,
+        league: String(leagueName),
+        match: String(matchName),
         market: 'Stake Market',
         selections,
       });
     }
   }
-
   return markets;
 }
 
-function normalizeOneXBet(json: OneXBetResponse | null): MarketOdds[] {
-  if (!json?.Value) return [];
+function normalizeOneXBet(json: OneXBetResponse): MarketOdds[] {
+  if (!json || !Array.isArray(json?.Value)) return [];
   const markets: MarketOdds[] = [];
-
   for (const ev of json.Value) {
     const league = ev?.L || '1xBet League';
     const match = `${ev?.O1 ?? ''} - ${ev?.O2 ?? ''}`;
-    const oddsSet = ev?.E?.find((e) => e?.T === 1);
+    const oddsSet = ev?.E?.find((e: OneXBetOddsEvent) => e?.T === 1);
     if (!oddsSet) continue;
 
-    const home = Number(oddsSet.C);
-    const draw = Number(oddsSet.D);
-    const away = Number(oddsSet.E);
-    if ([home, draw, away].every((v) => v && isFinite(v))) {
+    const home = Number(oddsSet?.C);
+    const draw = Number(oddsSet?.D);
+    const away = Number(oddsSet?.E);
+    if ([home, draw, away].every(v => v && isFinite(v))) {
       markets.push(
         buildOneXTwoMarket(
           { sport: 'Football', league, match },
@@ -146,28 +97,28 @@ function normalizeOneXBet(json: OneXBetResponse | null): MarketOdds[] {
       );
     }
   }
-
   return markets;
 }
 
-function normalizeDavidSureBet(json: DavidResponse | null): MarketOdds[] {
-  if (!json?.sports) return [];
+// --- NEW: Normalize DavidSureBet / IMSPTDLS ---
+function normalizeDavidSureBet(json: IMSResponse): MarketOdds[] {
+  if (!json || !Array.isArray(json?.sports)) return [];
   const markets: MarketOdds[] = [];
 
   for (const sport of json.sports) {
-    for (const league of sport.leagues ?? []) {
-      for (const event of league.events ?? []) {
-        const match = `${event.homeTeam?.name ?? 'TeamA'} - ${event.awayTeam?.name ?? 'TeamB'}`;
-        const market = event.markets?.find((m) => m.type === '1X2');
-        if (!market?.outcomes) continue;
+    for (const league of sport?.leagues || []) {
+      for (const event of league?.events || []) {
+        const match = `${event?.homeTeam?.name ?? 'TeamA'} - ${event?.awayTeam?.name ?? 'TeamB'}`;
+        const market = event?.markets?.find((m: IMSMarket) => m?.type === '1X2');
+        if (!market || !Array.isArray(market?.outcomes)) continue;
 
-        const home = Number(market.outcomes.find((o) => o.type === '1')?.odds);
-        const draw = Number(market.outcomes.find((o) => o.type === 'X')?.odds);
-        const away = Number(market.outcomes.find((o) => o.type === '2')?.odds);
-        if ([home, draw, away].every((v) => v && isFinite(v))) {
+        const home = Number(market.outcomes?.find((o: IMSOutcome) => o?.type === '1')?.odds);
+        const draw = Number(market.outcomes?.find((o: IMSOutcome) => o?.type === 'X')?.odds);
+        const away = Number(market.outcomes?.find((o: IMSOutcome) => o?.type === '2')?.odds);
+        if ([home, draw, away].every(v => v && isFinite(v))) {
           markets.push(
             buildOneXTwoMarket(
-              { sport: sport.name ?? 'Football', league: league.name ?? 'Unknown League', match },
+              { sport: sport?.name ?? 'Football', league: league?.name ?? 'Unknown League', match },
               { bookmaker: 'DavidSureBet', home, draw, away },
             ),
           );
@@ -179,38 +130,62 @@ function normalizeDavidSureBet(json: DavidResponse | null): MarketOdds[] {
   return markets;
 }
 
-// ---------- Main handler ----------
+// --- Main handler ---
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const minRoi = Number(searchParams.get('minRoi') ?? '0');
-  const stake = Number(searchParams.get('stake') ?? '100');
+  const minRoi = Number(searchParams.get('minRoi') || '0');
+  const stake = Number(searchParams.get('stake') || '100');
 
   console.log('➡️ Incoming request params:', { minRoi, stake });
 
-  const [oneX, imsptdls, stakeGql] = await Promise.all([
-    fetchJson<OneXBetResponse>(
-      'https://fun1x888.com/service-api/LiveFeed/Get1x2_VZip?count=20&lng=vi&gr=819&mode=4&country=43&virtualSports=true&noFilterBlockEvent=true',
-    ),
-    fetchJson<DavidResponse>('https://sb.imsptdls.com/api/Event/GetSportEventsDelta', {
+  const [_sbk, oneX, imsptdls, stakeGql] = await Promise.all([
+    fetchJson<unknown>('https://landing-sports-api.sbk-prdasia.com/api/v2/en-gb/ROA/home', {
+      headers: {
+        Authorization: `Bearer ${process.env.SBK_API_TOKEN}`,
+      },
+    }),
+    fetchJson<OneXBetResponse>('https://fun1x888.com/service-api/LiveFeed/Get1x2_VZip?count=20&lng=vi&gr=819&mode=4&country=43&virtualSports=true&noFilterBlockEvent=true'),
+    fetchJson<IMSResponse>('https://sb.imsptdls.com/api/Event/GetSportEvents', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 
+        'content-type': 'application/json',
+        'x-sc': 'AlIKXFEHXVBXUwJVVAEKAFdYVQMDV1dQC1pXBQ4NAwVXOSUmPVsOOmtUaxMkORQfBD0/A19gXnBB',
+        'x-token': 'a37adab3-acda-4631-8e4f-ab56d631278a',
+        'x-v': '81661'
+      },
       body: JSON.stringify({
-        SportId: 1,
-        MarketTypeIds: [1, 2, 3],
-        IncludeMarkets: true,
-        IncludeEvents: true,
-        Lang: 'en',
+          SportId: 1,
+          Market: 3,
+          BetTypeIds: [1, 2, 3],
+          PeriodIds: [1, 2],
+          IsCombo: false,
+          OddsType: 2,
+          DateFrom: null,
+          DateTo: null,
+          CompetitionIds: [],
+          SortType: 2,
+          ProgrammeIds: []
       }),
     }),
-    fetchJson<StakeResponse>('https://stake.com/_api/graphql', {
+
+    fetchJson<StakeHighrollerResponse>('https://stake.com/_api/graphql', {
       method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        "x-language": "en",
-        "x-operation-name": "SportBet_SportMarketOutcome",
-        "x-operation-type": "query",
-        "Cookie": process.env.STAKE_COOKIES!,
+        'authority': 'stake.com',
+        'accept': '*/*',
+        'accept-language': 'en-US,en;q=0.9',
+        'content-type': 'application/json',
+        'origin': 'https://stake.com',
+        'referer': 'https://stake.com/',
+        'sec-ch-ua': '"Chromium";v="112", "Google Chrome";v="112", "Not:A-Brand";v="99"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36',
+        'x-access-token': process.env.STAKE_ACCESS_TOKEN || '', 
       },
       body: JSON.stringify({
         query: `query BetsBoard_HighrollerSportBets($limit: Int!) {
@@ -237,23 +212,31 @@ export async function GET(req: NextRequest) {
           }
         }`,
         variables: { limit: 10 },
+        operationName: 'BetsBoard_HighrollerSportBets', // Add this too
       }),
     }),
   ]);
 
-  console.log('✅ Providers fetched:', { imsptdls });
+  console.log('✅ Providers fetched:');
+  console.log('IMS PTDLS (DavidSureBet):', stakeGql);
 
-  const markets: MarketOdds[] = [
-    ...normalizeOneXBet(oneX),
-    ...normalizeStakeHighrollers(stakeGql),
-    ...normalizeDavidSureBet(imsptdls),
-  ];
+  const markets: MarketOdds[] = [];
+
+  const oneXMarkets = normalizeOneXBet(oneX);
+  const stakeMarkets = normalizeStakeHighrollers(stakeGql);
+  const imsMarkets = normalizeDavidSureBet(imsptdls);
 
   console.log('📊 Normalized market counts:', {
-    oneX: normalizeOneXBet(oneX).length,
-    stake: normalizeStakeHighrollers(stakeGql).length,
-    imsptdls: normalizeDavidSureBet(imsptdls).length,
+    oneX: oneXMarkets.length,
+    stake: stakeMarkets.length,
+    imsptdls: imsMarkets.length,
   });
+
+  markets.push(...oneXMarkets);
+  markets.push(...stakeMarkets);
+  markets.push(...imsMarkets);
+
+  console.log('📈 Total combined markets:', markets.length);
 
   const surebets = findSurebets(markets, {
     totalStake: isFinite(stake) ? stake : 100,
@@ -261,7 +244,9 @@ export async function GET(req: NextRequest) {
   });
 
   console.log('💰 Surebets found:', surebets.length);
-  if (surebets.length) console.log('Example surebet:', surebets[0]);
+  if (surebets.length) {
+    console.log('Example surebet:', surebets[0]);
+  }
 
   return NextResponse.json({ count: surebets.length, surebets });
 }
@@ -269,7 +254,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const markets = (body?.markets ?? []) as MarketOdds[];
+    const markets = (body?.markets || []) as MarketOdds[];
     const totalStake = typeof body?.totalStake === 'number' ? body.totalStake : 100;
     const minRoiPct = typeof body?.minRoiPct === 'number' ? body.minRoiPct : 0;
     const surebets = findSurebets(markets, { totalStake, minRoiPct });
@@ -278,3 +263,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
   }
 }
+
