@@ -1,0 +1,502 @@
+https://www.cachtaigametaptap.com/vi-vn (188bet)
+https://fun1x888.com/vi (1xbet)
+https://www.cloudbet.com/vi/sports (cloudbet)
+http://stake.com/
+https://www.j-bo8711.com/vn/?request=2 (Trang JBO, Có 3 sảnh: BTI, IM, SABA)
+
+
+GET REQUEST 
+
+@https://sports-api.sbk-prdasia.com/api/v2/vi-vn/ROA/home
+ @https://fun1x888.com/service-api/LiveFeed/Get1x2_VZip?count=20&lng=vi&gr=819&mode=4&country=43&virtualSports=true&noFilterBlockEvent=true 
+
+
+POST REQUEST 
+
+
+https://sports-api.sbk-prdasia.com/api/v1/vi-vn/addbets
+payload
+{
+    "bps": [
+        {
+            "sid": 9864191055,
+            "eid": 10039243,
+            "ods": "1.91",
+            "hdp": "28",
+            "sc": "26:26",
+            "ip": true,
+            "s": -1,
+            "ap": true
+        }
+    ],
+    "ot": 1,
+    "ao": 1,
+    "qb": true,
+    "nfb": true,
+    "fbl": []
+}
+
+
+
+https://fun1x888.com/service-api/LiveBet-update/Open/UpdateCoupon
+
+{
+    "UserId": 1423589239,
+    "Events": [
+        {
+            "GameId": 657600152,
+            "Type": 3,
+            "Coef": 3.37,
+            "Param": 0,
+            "PV": null,
+            "PlayerId": 0,
+            "Kind": 3,
+            "InstrumentId": 0,
+            "Seconds": 0,
+            "Price": 0,
+            "Expired": 0,
+            "PlayersDuel": []
+        }
+    ],
+    "Vid": 0,
+    "partner": 1,
+    "Lng": "vi",
+    "CfView": 0,
+    "CalcSystemsMin": false,
+    "Group": 819,
+    "Country": 43,
+    "Currency": 91,
+    "SaleBetId": 0,
+    "IsPowerBet": false,
+    "WithLobby": false
+}
+
+
+https://sb.imsptdls.com/api/Event/GetSportEventsDelta
+
+{
+    "SportId": 1,
+    "Market": 3,
+    "BetTypeIds": [
+        1,
+        2,
+        3
+    ],
+    "PeriodIds": [
+        1,
+        2
+    ],
+    "OddsType": 2,
+    "DateFrom": "",
+    "DateTo": "",
+    "CompetitionIds": [],
+    "Delta": "H4sIAAAAAAAAA4uuVgouyC8qCaksSFWyMtRR8k0syk4tUbIy1lFySc0pSQxOzi8CyhiZGhoYmhsYGZgZgICeAbJ0QFF+WWZKapGSFVA4LLWoODM/z680NwksomdQq0O6JWaWpha4LDHEakksAPiD3k3LAAAA",
+    "ProgrammeIds": []
+}
+
+
+https://stake.com/_api/graphql
+{
+    "query": "query BetsBoard_HighrollerSportBets($limit: Int!) {\n  highrollerSportBets(limit: $limit) {\n    id\n    iid\n    bet {\n      ...BetsBoardSport_BetBet\n    }\n  }\n}\n\nfragment BetsBoardSport_BetBet on BetBet {\n  __typename\n  ... on SwishBet {\n    __typename\n    id\n    updatedAt\n    createdAt\n    potentialMultiplier\n    amount\n    currency\n    user {\n      id\n      name\n      preferenceHideBets\n    }\n    outcomes {\n      __typename\n      id\n      odds\n      outcome {\n        __typename\n        id\n        market {\n          id\n          competitor {\n            name\n          }\n          game {\n            id\n            fixture {\n              id\n              tournament {\n                id\n                category {\n                  id\n                  sport {\n                    id\n                    slug\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n  ... on SportBet {\n    __typename\n    id\n    updatedAt\n    createdAt\n    potentialMultiplier\n    amount\n    currency\n    user {\n      name\n      preferenceHideBets\n    }\n    outcomes {\n      id\n      odds\n      fixtureAbreviation\n      fixtureName\n      fixture {\n        id\n        tournament {\n          id\n          category {\n            id\n            sport {\n              id\n              slug\n            }\n          }\n        }\n      }\n    }\n  }\n  ... on RacingBet {\n    __typename\n    id\n    active\n    payout\n    updatedAt\n    createdAt\n    betPotentialMultiplier: potentialMultiplier\n    amount\n    currency\n    betStatus: status\n    payoutMultiplier\n    adjustments {\n      payoutMultiplier\n    }\n    user {\n      id\n      name\n      preferenceHideBets\n    }\n    outcomes {\n      id\n      type\n      derivativeType\n      prices {\n        marketName\n        odds\n      }\n      event {\n        meeting {\n          racing {\n            slug\n          }\n        }\n      }\n      selectionSlots {\n        runners {\n          name\n        }\n      }\n      result {\n        resultedPrices\n      }\n    }\n  }\n}",
+    "variables": {
+        "limit": 10
+    }
+}
+
+{
+    "data": {
+        "highrollerSportBets": [
+            {
+                "id": "562bcf00-2960-4fc9-ae59-f3dfa76debdd",
+                "iid": "sport:456439466",
+                "bet": {
+                    "__typename": "SportBet",
+                    "id": "562bcf00-2960-4fc9-ae59-f3dfa76debdd",
+                    "updatedAt": "Fri, 17 Oct 2025 05:54:07 GMT",
+                    "createdAt": "Fri, 17 Oct 2025 05:54:00 GMT",
+                    "potentialMultiplier": 1.75,
+                    "amount": 0.30684,
+                    "currency": "eth",
+                    "user": null,
+                    "outcomes": [
+                        {
+                            "id": "9fbe7df6-b28a-49d1-850b-c33e50a70677",
+                            "odds": 1.75,
+                            "fixtureAbreviation": "GOL - CIR",
+                            "fixtureName": "Golubic, Viktorija - Cirstea, Sorana",
+                            "fixture": {
+                                "id": "190d9ee5-4ed1-410c-b5df-aabb1b0bf1bc",
+                                "tournament": {
+                                    "id": "8ecd9312-e3b0-42fa-877c-0d8e1cc65b95",
+                                    "category": {
+                                        "id": "71a98070-c267-4885-93a2-7c912702f1d1",
+                                        "sport": {
+                                            "id": "8c7aea57-e9b1-414f-a095-206740716b4f",
+                                            "slug": "tennis"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "009c79d5-1127-49fe-b12c-7dc52663d53f",
+                "iid": "sport:456439192",
+                "bet": {
+                    "__typename": "SportBet",
+                    "id": "009c79d5-1127-49fe-b12c-7dc52663d53f",
+                    "updatedAt": "Fri, 17 Oct 2025 05:52:51 GMT",
+                    "createdAt": "Fri, 17 Oct 2025 05:52:42 GMT",
+                    "potentialMultiplier": 1.06,
+                    "amount": 300000,
+                    "currency": "inr",
+                    "user": null,
+                    "outcomes": [
+                        {
+                            "id": "ce2f856b-deeb-47b6-b54a-880193699c4b",
+                            "odds": 1.06,
+                            "fixtureAbreviation": "RED - BUL",
+                            "fixtureName": "South Australia Redbacks - Queensland Bulls",
+                            "fixture": {
+                                "id": "96851c48-4a70-4e91-b47d-c9cfef886381",
+                                "tournament": {
+                                    "id": "0477a008-5499-44c8-976b-778104635915",
+                                    "category": {
+                                        "id": "38662fb3-1c3a-4c0e-8eeb-75339c7443c1",
+                                        "sport": {
+                                            "id": "83ce6112-ddd8-46a6-b2d1-ed6d2b5e9010",
+                                            "slug": "cricket"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "d8d36a9d-55f8-4ec0-a48c-a16b0bfbefc9",
+                "iid": "sport:456439130",
+                "bet": {
+                    "__typename": "SportBet",
+                    "id": "d8d36a9d-55f8-4ec0-a48c-a16b0bfbefc9",
+                    "updatedAt": "Fri, 17 Oct 2025 05:52:37 GMT",
+                    "createdAt": "Fri, 17 Oct 2025 05:52:26 GMT",
+                    "potentialMultiplier": 7.4375,
+                    "amount": 0.36189893,
+                    "currency": "eth",
+                    "user": null,
+                    "outcomes": [
+                        {
+                            "id": "3c27d70d-63b2-4744-856c-5d59130059c6",
+                            "odds": 1.7,
+                            "fixtureAbreviation": "GOL - CIR",
+                            "fixtureName": "Golubic, Viktorija - Cirstea, Sorana",
+                            "fixture": {
+                                "id": "190d9ee5-4ed1-410c-b5df-aabb1b0bf1bc",
+                                "tournament": {
+                                    "id": "8ecd9312-e3b0-42fa-877c-0d8e1cc65b95",
+                                    "category": {
+                                        "id": "71a98070-c267-4885-93a2-7c912702f1d1",
+                                        "sport": {
+                                            "id": "8c7aea57-e9b1-414f-a095-206740716b4f",
+                                            "slug": "tennis"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "id": "4502a90b-6411-497e-846b-0f79cd74243f",
+                            "odds": 1.75,
+                            "fixtureAbreviation": "ALL - TOR",
+                            "fixtureName": "Alliance - Tornado",
+                            "fixture": {
+                                "id": "032a7c80-a0fe-4456-b716-32be2e61e7ce",
+                                "tournament": {
+                                    "id": "c7198982-5426-4364-89d9-d540551a8d62",
+                                    "category": {
+                                        "id": "0cb6528c-292f-4143-88e4-9bc8e156f721",
+                                        "sport": {
+                                            "id": "c1cc7eff-6135-40d0-9485-1f737950b3b1",
+                                            "slug": "volleyball"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "id": "b426c567-f551-400b-880e-3ea4e60d7669",
+                            "odds": 2.5,
+                            "fixtureAbreviation": "BEN - PAO",
+                            "fixtureName": "Bencic, Belinda - Paolini, Jasmine",
+                            "fixture": {
+                                "id": "3c398629-d2c7-49c6-81fe-b78d10d2c898",
+                                "tournament": {
+                                    "id": "e2ed7995-2c40-4acd-bd9a-b71f5b1e239c",
+                                    "category": {
+                                        "id": "71a98070-c267-4885-93a2-7c912702f1d1",
+                                        "sport": {
+                                            "id": "8c7aea57-e9b1-414f-a095-206740716b4f",
+                                            "slug": "tennis"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "6967b931-bd72-49de-8926-bf259d0524d5",
+                "iid": "sport:456439115",
+                "bet": {
+                    "__typename": "SportBet",
+                    "id": "6967b931-bd72-49de-8926-bf259d0524d5",
+                    "updatedAt": "Fri, 17 Oct 2025 05:52:23 GMT",
+                    "createdAt": "Fri, 17 Oct 2025 05:52:23 GMT",
+                    "potentialMultiplier": 1.89,
+                    "amount": 3400,
+                    "currency": "cad",
+                    "user": null,
+                    "outcomes": [
+                        {
+                            "id": "9dfae835-6412-4df5-a118-ebdee2a79e53",
+                            "odds": 1.89,
+                            "fixtureAbreviation": "SEA - TOR",
+                            "fixtureName": "Seattle Mariners - Toronto Blue Jays",
+                            "fixture": {
+                                "id": "85d58209-7583-424c-8785-2a8a2113882e",
+                                "tournament": {
+                                    "id": "fa6faae6-14fd-4ae2-9dae-a91fec1f3dd8",
+                                    "category": {
+                                        "id": "aae6a54c-ff4c-46bf-bec7-8208802b3b4e",
+                                        "sport": {
+                                            "id": "04f53d89-e77a-4c2f-bb9d-2b4095ba6acb",
+                                            "slug": "baseball"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "5d92ecaa-e928-48e9-80cb-c74033a8c964",
+                "iid": "sport:456439072",
+                "bet": {
+                    "__typename": "SportBet",
+                    "id": "5d92ecaa-e928-48e9-80cb-c74033a8c964",
+                    "updatedAt": "Fri, 17 Oct 2025 05:52:12 GMT",
+                    "createdAt": "Fri, 17 Oct 2025 05:52:12 GMT",
+                    "potentialMultiplier": 1.09,
+                    "amount": 13752,
+                    "currency": "usdc",
+                    "user": null,
+                    "outcomes": [
+                        {
+                            "id": "e0f535b8-7e56-478e-bc12-d02afe8cd353",
+                            "odds": 1.09,
+                            "fixtureAbreviation": "PSG - RCS",
+                            "fixtureName": "Paris Saint-Germain - Strasbourg Alsace",
+                            "fixture": {
+                                "id": "991f58e2-dc49-41ab-9e29-56f73d18cbe5",
+                                "tournament": {
+                                    "id": "4ec37b6b-a7f8-456a-b18b-e127f06d52b7",
+                                    "category": {
+                                        "id": "2b4b95e5-ef93-4d72-8ea2-f0c138c9632a",
+                                        "sport": {
+                                            "id": "5b4b60b9-ed95-41e7-97e3-f33aa172cf12",
+                                            "slug": "soccer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "43a8ab6e-25ff-434a-aff4-01491631140e",
+                "iid": "sport:456438982",
+                "bet": {
+                    "__typename": "SportBet",
+                    "id": "43a8ab6e-25ff-434a-aff4-01491631140e",
+                    "updatedAt": "Fri, 17 Oct 2025 05:51:58 GMT",
+                    "createdAt": "Fri, 17 Oct 2025 05:51:51 GMT",
+                    "potentialMultiplier": 1.85,
+                    "amount": 0.319625,
+                    "currency": "eth",
+                    "user": null,
+                    "outcomes": [
+                        {
+                            "id": "0c23fe78-4eee-4112-948d-12a524a09965",
+                            "odds": 1.85,
+                            "fixtureAbreviation": "GOL - CIR",
+                            "fixtureName": "Golubic, Viktorija - Cirstea, Sorana",
+                            "fixture": {
+                                "id": "190d9ee5-4ed1-410c-b5df-aabb1b0bf1bc",
+                                "tournament": {
+                                    "id": "8ecd9312-e3b0-42fa-877c-0d8e1cc65b95",
+                                    "category": {
+                                        "id": "71a98070-c267-4885-93a2-7c912702f1d1",
+                                        "sport": {
+                                            "id": "8c7aea57-e9b1-414f-a095-206740716b4f",
+                                            "slug": "tennis"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "4d111a6c-e9e5-46d6-9a4c-ac4c503e2ab0",
+                "iid": "sport:456438895",
+                "bet": {
+                    "__typename": "SportBet",
+                    "id": "4d111a6c-e9e5-46d6-9a4c-ac4c503e2ab0",
+                    "updatedAt": "Fri, 17 Oct 2025 05:51:36 GMT",
+                    "createdAt": "Fri, 17 Oct 2025 05:51:25 GMT",
+                    "potentialMultiplier": 2.2,
+                    "amount": 5000,
+                    "currency": "usdt",
+                    "user": null,
+                    "outcomes": [
+                        {
+                            "id": "c1247515-9d8d-4dde-b246-68c66459afcd",
+                            "odds": 2.2,
+                            "fixtureAbreviation": "JAP - OMA",
+                            "fixtureName": "Japan - Oman",
+                            "fixture": {
+                                "id": "bcfc23f4-6526-48ff-9f09-f231e1ef85a4",
+                                "tournament": {
+                                    "id": "d1cdc2b2-d501-44df-a14d-d97fce64ae49",
+                                    "category": {
+                                        "id": "88669451-af79-4e6a-84ea-b82e3cd9ff2f",
+                                        "sport": {
+                                            "id": "83ce6112-ddd8-46a6-b2d1-ed6d2b5e9010",
+                                            "slug": "cricket"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "cbd6b73a-fc81-43e4-9008-4e9550a7fa32",
+                "iid": "sport:456438894",
+                "bet": {
+                    "__typename": "SportBet",
+                    "id": "cbd6b73a-fc81-43e4-9008-4e9550a7fa32",
+                    "updatedAt": "Fri, 17 Oct 2025 05:51:36 GMT",
+                    "createdAt": "Fri, 17 Oct 2025 05:51:25 GMT",
+                    "potentialMultiplier": 2.25,
+                    "amount": 5000,
+                    "currency": "usdt",
+                    "user": null,
+                    "outcomes": [
+                        {
+                            "id": "fb6e0d1b-7594-4f49-b2e8-c644d018aaee",
+                            "odds": 2.25,
+                            "fixtureAbreviation": "JAP - OMA",
+                            "fixtureName": "Japan - Oman",
+                            "fixture": {
+                                "id": "bcfc23f4-6526-48ff-9f09-f231e1ef85a4",
+                                "tournament": {
+                                    "id": "d1cdc2b2-d501-44df-a14d-d97fce64ae49",
+                                    "category": {
+                                        "id": "88669451-af79-4e6a-84ea-b82e3cd9ff2f",
+                                        "sport": {
+                                            "id": "83ce6112-ddd8-46a6-b2d1-ed6d2b5e9010",
+                                            "slug": "cricket"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "7559739b-32f6-48df-a7fa-053a2dbe022a",
+                "iid": "sport:456438893",
+                "bet": {
+                    "__typename": "SportBet",
+                    "id": "7559739b-32f6-48df-a7fa-053a2dbe022a",
+                    "updatedAt": "Fri, 17 Oct 2025 05:51:36 GMT",
+                    "createdAt": "Fri, 17 Oct 2025 05:51:25 GMT",
+                    "potentialMultiplier": 2.1,
+                    "amount": 5000,
+                    "currency": "usdt",
+                    "user": null,
+                    "outcomes": [
+                        {
+                            "id": "d76d06bf-f3bc-409a-ba57-39629359c447",
+                            "odds": 2.1,
+                            "fixtureAbreviation": "JAP - OMA",
+                            "fixtureName": "Japan - Oman",
+                            "fixture": {
+                                "id": "bcfc23f4-6526-48ff-9f09-f231e1ef85a4",
+                                "tournament": {
+                                    "id": "d1cdc2b2-d501-44df-a14d-d97fce64ae49",
+                                    "category": {
+                                        "id": "88669451-af79-4e6a-84ea-b82e3cd9ff2f",
+                                        "sport": {
+                                            "id": "83ce6112-ddd8-46a6-b2d1-ed6d2b5e9010",
+                                            "slug": "cricket"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "3442c9a2-024d-4137-bf90-82eed1e423d2",
+                "iid": "sport:456438892",
+                "bet": {
+                    "__typename": "SportBet",
+                    "id": "3442c9a2-024d-4137-bf90-82eed1e423d2",
+                    "updatedAt": "Fri, 17 Oct 2025 05:51:36 GMT",
+                    "createdAt": "Fri, 17 Oct 2025 05:51:25 GMT",
+                    "potentialMultiplier": 2.4,
+                    "amount": 5000,
+                    "currency": "usdt",
+                    "user": null,
+                    "outcomes": [
+                        {
+                            "id": "16cb883d-43f0-42fe-a037-5ab786fd763b",
+                            "odds": 2.4,
+                            "fixtureAbreviation": "JAP - OMA",
+                            "fixtureName": "Japan - Oman",
+                            "fixture": {
+                                "id": "bcfc23f4-6526-48ff-9f09-f231e1ef85a4",
+                                "tournament": {
+                                    "id": "d1cdc2b2-d501-44df-a14d-d97fce64ae49",
+                                    "category": {
+                                        "id": "88669451-af79-4e6a-84ea-b82e3cd9ff2f",
+                                        "sport": {
+                                            "id": "83ce6112-ddd8-46a6-b2d1-ed6d2b5e9010",
+                                            "slug": "cricket"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
+
+
+pnpm create next-app@latest telebet --yes
