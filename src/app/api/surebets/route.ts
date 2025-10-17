@@ -205,11 +205,12 @@ export async function GET(req: NextRequest) {
     fetchJson<StakeResponse>('https://stake.com/_api/graphql', {
       method: 'POST',
       headers: {
-        'content-type': 'application/json',
-        origin: 'https://stake.com',
-        referer: 'https://stake.com/',
-        'user-agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121 Safari/537.36',
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        "x-language": "en",
+        "x-operation-name": "SportBet_SportMarketOutcome",
+        "x-operation-type": "query",
+        "Cookie": process.env.STAKE_COOKIES!,
       },
       body: JSON.stringify({
         query: `query BetsBoard_HighrollerSportBets($limit: Int!) {
